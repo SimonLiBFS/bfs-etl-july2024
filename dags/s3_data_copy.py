@@ -27,7 +27,7 @@ with DAG(
     copy_into_prestg = CopyFromExternalStageToSnowflakeOperator(
         task_id="task_weather_1_data_copy",
         files=['weather_1_{{ ds[5:7]+ds[8:10]+ds[0:4] }}.csv'],
-        table='prestg_weather_team1',
+        table='prestage_weather_team1',
         schema=SNOWFLAKE_SCHEMA,
         stage=SNOWFLAKE_STAGE,
         file_format='''(type = 'CSV', field_delimiter = ',', SKIP_HEADER = 1 \
