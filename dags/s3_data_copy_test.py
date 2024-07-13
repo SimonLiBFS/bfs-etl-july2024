@@ -28,9 +28,9 @@ with DAG(
 ) as dag:
 
     copy_into_prestg = CopyFromExternalStageToSnowflakeOperator(
-        task_id='prestg_product_order_trans',
-        files=['product_order_trans_{{ ds[5:7]+ds[8:10]+ds[0:4] }}.csv'],
-        table='prestg_product_order_trans',
+        task_id='team3_project1',
+        files=['atp_team3_{{ ds[5:7]+ds[8:10]+ds[0:4] }}.csv'],
+        table='prestage_atp_team3',
         schema=SNOWFLAKE_SCHEMA,
         stage=SNOWFLAKE_STAGE,
         file_format='''(type = 'CSV', field_delimiter = ',', SKIP_HEADER = 1 \
