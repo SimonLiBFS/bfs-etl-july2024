@@ -12,7 +12,7 @@ SNOWFLAKE_SCHEMA = 'BF_DEV'
 SNOWFLAKE_STAGE = 'S3_STAGE_TRANS_ORDER'
 SNOWFLAKE_TABLE = 'prestage_staff_info_team2'
 
-
+# Defalut parameter settings
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
@@ -36,7 +36,8 @@ with DAG(
     for date in ['2024-07-13', '2024-07-14', '2024-07-15']:
         s3_key = f'aiflow_project/staff_info_{date.split("-")[1]}{date.split("-")[2]}.csv'
         task_id = f'load_{date}_to_snowflake'
-        
+
+        # Copy from the external stage
         copy_into_prestg = CopyFromExternalStageToSnowflakeOperator(
             task_id=task_id,
             snowflake_conn_id=SNOWFLAKE_CONN_ID,
