@@ -13,8 +13,8 @@ SNOWFLAKE_CONN_ID = 'snowflake_conn'
 SNOWFLAKE_DATABASE = 'airflow0624'
 SNOWFLAKE_SCHEMA = 'bf_dev'
 
-SNOWFLAKE_ROLE = 'AW_developer'
-SNOWFLAKE_WAREHOUSE = 'aw_etl'
+SNOWFLAKE_ROLE = 'bf_developer0624'
+SNOWFLAKE_WAREHOUSE = 'bf_etl0624'
 SNOWFLAKE_STAGE = 's3_stage_trans_order'
 
 with DAG(
