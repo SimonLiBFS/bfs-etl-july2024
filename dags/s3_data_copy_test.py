@@ -10,11 +10,11 @@ from airflow.providers.snowflake.transfers.copy_into_snowflake import CopyFromEx
 
 
 SNOWFLAKE_CONN_ID = 'snowflake_conn'
-SNOWFLAKE_DATABASE = 'airflow0624'
-SNOWFLAKE_SCHEMA = 'bf_dev'
+SNOWFLAKE_DATABASE = 'AIRFLOW0624'
+SNOWFLAKE_SCHEMA = 'BF_DEV'
 
-SNOWFLAKE_ROLE = 'bf_developer0624'
-SNOWFLAKE_WAREHOUSE = 'bf_etl0624'
+SNOWFLAKE_ROLE = 'BD_DEVELOPER0624'
+SNOWFLAKE_WAREHOUSE = 'BF_ETL0624'
 SNOWFLAKE_STAGE = 's3_stage_trans_order'
 
 with DAG(
