@@ -72,25 +72,7 @@ SQL_UPDATE_STATEMENT = '''
 MERGE INTO AIRFLOW0624.BF_DEV.dim_Company_Profile_Team4 AS target
 USING US_STOCK_DAILY.DCCM.Company_Profile AS source
 ON target.ID = source.ID
-WHEN MATCHED AND (
-    target.SYMBOL != source.SYMBOL OR
-    target.PRICE != source.PRICE OR
-    target.BETA != source.BETA OR
-    target.VOLAVG != source.VOLAVG OR
-    target.MKTCAP != source.MKTCAP OR
-    target.LASTDIV != source.LASTDIV OR
-    target.RANGE != source.RANGE OR
-    target.CHANGES != source.CHANGES OR
-    target.COMPANYNAME != source.COMPANYNAME OR
-    target.EXCHANGE != source.EXCHANGE OR
-    target.INDUSTRY != source.INDUSTRY OR
-    target.WEBSITE != source.WEBSITE OR
-    target.DESCRIPTION != source.DESCRIPTION OR
-    target.CEO != source.CEO OR
-    target.SECTOR != source.SECTOR OR
-    target.DCFDIFF != source.DCFDIFF OR
-    target.DCF != source.DCF
-) THEN UPDATE SET
+WHEN MATCHED THEN UPDATE SET
     target.SYMBOL = source.SYMBOL,
     target.PRICE = source.PRICE,
     target.BETA = source.BETA,
@@ -115,10 +97,7 @@ WHEN NOT MATCHED THEN
 MERGE INTO AIRFLOW0624.BF_DEV.dim_Symbols_Team4 AS target
 USING US_STOCK_DAILY.DCCM.Symbols AS source
 ON target.SYMBOL = source.SYMBOL
-WHEN MATCHED AND (
-    target.NAME != source.NAME OR
-    target.EXCHANGE != source.EXCHANGE
-) THEN UPDATE SET
+WHEN MATCHED THEN UPDATE SET
     target.NAME = source.NAME,
     target.EXCHANGE = source.EXCHANGE
 WHEN NOT MATCHED THEN
@@ -128,14 +107,7 @@ WHEN NOT MATCHED THEN
 MERGE INTO AIRFLOW0624.BF_DEV.fact_Stock_History_Team4 AS target
 USING US_STOCK_DAILY.DCCM.Stock_History AS source
 ON target.SYMBOL = source.SYMBOL AND target.DATE = source.DATE
-WHEN MATCHED AND (
-    target.OPEN != source.OPEN OR
-    target.HIGH != source.HIGH OR
-    target.LOW != source.LOW OR
-    target.CLOSE != source.CLOSE OR
-    target.VOLUME != source.VOLUME OR
-    target.ADJCLOSE != source.ADJCLOSE
-) THEN UPDATE SET
+WHEN MATCHED THEN UPDATE SET
     target.OPEN = source.OPEN,
     target.HIGH = source.HIGH,
     target.LOW = source.LOW,
