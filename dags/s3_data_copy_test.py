@@ -10,8 +10,8 @@ from airflow.providers.snowflake.transfers.copy_into_snowflake import CopyFromEx
 
 
 SNOWFLAKE_CONN_ID = 'snowflake_conn'
-SNOWFLAKE_DATABASE = 'beaconfire'
-SNOWFLAKE_SCHEMA = 'dev_db'
+SNOWFLAKE_DATABASE = 'airflow0624'
+SNOWFLAKE_SCHEMA = 'bd_dev'
 
 SNOWFLAKE_ROLE = 'AW_developer'
 SNOWFLAKE_WAREHOUSE = 'aw_etl'
