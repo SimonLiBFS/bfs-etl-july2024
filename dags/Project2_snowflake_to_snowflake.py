@@ -55,22 +55,22 @@ CREATE OR REPLACE TABLE AIRFLOW0624.BF_DEV.fact_Stock_History_Team4 (
 # loading initial data into target tables
 SQL_INSERT_STATEMENT = '''
 INSERT INTO AIRFLOW0624.BF_DEV.dim_Company_Profile_Team4
-SELECT *
+SELECT DISTINCT *
 FROM US_STOCK_DAILY.DCCM.Company_Profile;
 
 INSERT INTO AIRFLOW0624.BF_DEV.dim_Symbols_Team4 
-SELECT *
+SELECT DISTINCT *
 FROM US_STOCK_DAILY.DCCM.Symbols;
 
 INSERT INTO AIRFLOW0624.BF_DEV.fact_Stock_History_Team4
-SELECT *
+SELECT DISTINCT *
 FROM US_STOCK_DAILY.DCCM.Stock_History;
 '''
 
 # incremental updates
 SQL_UPDATE_STATEMENT = '''
 MERGE INTO AIRFLOW0624.BF_DEV.dim_Company_Profile_Team4 AS target
-USING US_STOCK_DAILY.DCCM.Company_Profile AS source
+USING (SELECT DISTINCT * FROM US_STOCK_DAILY.DCCM.Company_Profile) AS source
 ON target.ID = source.ID
 WHEN MATCHED THEN UPDATE SET
     target.SYMBOL = source.SYMBOL,
@@ -95,7 +95,7 @@ WHEN NOT MATCHED THEN
     VALUES (source.ID, source.SYMBOL, source.PRICE, source.BETA, source.VOLAVG, source.MKTCAP, source.LASTDIV, source.RANGE, source.CHANGES, source.COMPANYNAME, source.EXCHANGE, source.INDUSTRY, source.WEBSITE, source.DESCRIPTION, source.CEO, source.SECTOR, source.DCFDIFF, source.DCF);
 
 MERGE INTO AIRFLOW0624.BF_DEV.dim_Symbols_Team4 AS target
-USING US_STOCK_DAILY.DCCM.Symbols AS source
+USING (SELECT DISTINCT * FROM US_STOCK_DAILY.DCCM.Symbols) AS source
 ON target.SYMBOL = source.SYMBOL
 WHEN MATCHED THEN UPDATE SET
     target.NAME = source.NAME,
@@ -105,7 +105,7 @@ WHEN NOT MATCHED THEN
     VALUES (source.SYMBOL, source.NAME, source.EXCHANGE);
 
 MERGE INTO AIRFLOW0624.BF_DEV.fact_Stock_History_Team4 AS target
-USING US_STOCK_DAILY.DCCM.Stock_History AS source
+USING (SELECT DISTINCT * FROM US_STOCK_DAILY.DCCM.Stock_History) AS source
 ON target.SYMBOL = source.SYMBOL AND target.DATE = source.DATE
 WHEN MATCHED THEN UPDATE SET
     target.OPEN = source.OPEN,
