@@ -30,6 +30,7 @@ with DAG(
         table='prestage_weather_team1',
         schema=SNOWFLAKE_SCHEMA,
         stage=SNOWFLAKE_STAGE,
+        role=SNOWFLAKE_ROLE,
         warehouse=SNOWFLAKE_WAREHOUSE,
         database=SNOWFLAKE_DATABASE,
         file_format='''(type = 'CSV', field_delimiter = ',', SKIP_HEADER = 1 \
