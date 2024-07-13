@@ -27,7 +27,7 @@ TicketType VARCHAR(50),\
 Price INTEGER,\
 DepartureStation VARCHAR(50),\
 ArrivalStation VARCHAR(50),\
-DateofJourney DATE,\
+DateofJourney VARCHAR(50),\
 DepartureTime TIME,\
 ArrivalTime TIME,\
 ActualArrival TIME,\
