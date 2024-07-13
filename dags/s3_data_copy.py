@@ -7,8 +7,8 @@ from airflow.providers.snowflake.transfers.copy_into_snowflake import CopyFromEx
 
 
 SNOWFLAKE_CONN_ID = 'snowflake_conn'
-SNOWFLAKE_DATABASE = 'beaconfire'
-SNOWFLAKE_SCHEMA = 'dev_db'
+SNOWFLAKE_DATABASE = 'AIRFLOW0624'
+SNOWFLAKE_SCHEMA = 'BF_DEV'
 
 SNOWFLAKE_ROLE = 'AW_developer'
 SNOWFLAKE_WAREHOUSE = 'aw_etl'
@@ -27,7 +27,7 @@ with DAG(
     copy_into_prestg = CopyFromExternalStageToSnowflakeOperator(
         task_id="task_weather_1_data_copy",
         files=['weather_1_{{ ds[5:7]+ds[8:10]+ds[0:4] }}.csv'],
-        table='prestg_product_order_trans',
+        table='prestg_weather_1',
         schema=SNOWFLAKE_SCHEMA,
         stage=SNOWFLAKE_STAGE,
         file_format='''(type = 'CSV', field_delimiter = ',', SKIP_HEADER = 1 \
