@@ -11,6 +11,7 @@ SNOWFLAKE_DATABASE = 'AIRFLOW0624'
 SNOWFLAKE_SCHEMA = 'BF_DEV'
 SNOWFLAKE_ROLE = 'BF_DEVELOPER0624'
 SNOWFLAKE_WAREHOUSE = 'BF_ETL0624'
+#SNOWFLAKE_STAGE = 'TESTING_TEAM4'
 SNOWFLAKE_STAGE = 'S3_STAGE_TRANS_ORDER'
 SNOWFLAKE_DST_TABLE = 'prestage_UKRailwaySale_Team4'
 
@@ -22,6 +23,7 @@ PurchaseType VARCHAR(50),\
 PaymentMethod VARCHAR(250),\
 Railcard VARCHAR(50),\
 TicketClass VARCHAR(50),\
+TicketType VARCHAR(50),\
 Price INTEGER,\
 DepartureStation VARCHAR(50),\
 ArrivalStation VARCHAR(50),\
@@ -38,7 +40,7 @@ with DAG(
     "s3_data_copy_test_team4",
     start_date=datetime(2024, 7, 12),
     end_date = datetime(2024, 7, 16),
-    schedule='* 1 * * *',
+    schedule='0 */2 * * *',
     default_args={'snowflake_conn_id': SNOWFLAKE_CONN_ID},
     tags=['beaconfire'],
     catchup=True,
@@ -55,18 +57,14 @@ with DAG(
 
     copy_into_prestg = CopyFromExternalStageToSnowflakeOperator(
         task_id='UKRailwaySale',
-        prefix= 's3://junde2024/aiflow_project/',
         files=['UKRailwaySale_4_07132024.csv'],
-        
         table=SNOWFLAKE_DST_TABLE,
         schema=SNOWFLAKE_SCHEMA,
         stage=SNOWFLAKE_STAGE,
-        file_format='''(type = 'CSV', field_delimiter = ',', SKIP_HEADER = 0 \
+        file_format='''(type = 'CSV', field_delimiter = ',', SKIP_HEADER = 1 \
             NULL_IF =('NULL','null',''), empty_field_as_null = true, FIELD_OPTIONALLY_ENCLOSED_BY = '\"' \
             ESCAPE_UNENCLOSED_FIELD = NONE RECORD_DELIMITER = '\n')''',
     )
 
     (snowflake_op_sql_str >> copy_into_prestg)
 
-if __name__ == "__main__":
-    dag.test()
