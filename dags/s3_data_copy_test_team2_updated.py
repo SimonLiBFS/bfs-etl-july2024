@@ -65,4 +65,4 @@ with DAG(
             ESCAPE_UNENCLOSED_FIELD = NONE RECORD_DELIMITER = '\n')''',
     )
 
-     create_table >> copy_into_prestg
+    create_table >> copy_into_prestg
