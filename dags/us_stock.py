@@ -66,3 +66,5 @@ with DAG(
         warehouse=SNOWFLAKE_WAREHOUSE,
         role=SNOWFLAKE_ROLE,
     )
+    
+    copy_company_profile_table >> copy_stock_history_table >> copy_symbols_table
