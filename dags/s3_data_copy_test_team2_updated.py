@@ -30,8 +30,8 @@ race STRING\
 
 with DAG(
     "s3_data_copy_test_team2",
-    start_date=datetime(2024, 7, 13),
-    end_date = datetime(2024, 7, 13),
+    start_date=datetime(2024, 7, 12),
+    end_date = datetime(2024, 7, 16),
     schedule_interval='0 6 * * *',
     default_args={'snowflake_conn_id': SNOWFLAKE_CONN_ID},
     tags=['beaconfire_airflow_team2'],
