@@ -18,7 +18,7 @@ with DAG(
     "weather_1_data_copy",
     start_date=datetime(2024, 7, 13),
     end_date = datetime(2024, 7, 15),
-    schedule_interval='0 0 * * *',
+    schedule_interval='1 4 * * *',
     default_args={'snowflake_conn_id': SNOWFLAKE_CONN_ID},
     tags=['beaconfire_june_de_team1'],
     catchup=True,
