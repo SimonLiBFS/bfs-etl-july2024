@@ -15,7 +15,7 @@ SNOWFLAKE_STAGE = 'S3_STAGE_TRANS_ORDER'
 SNOWFLAKE_TABLE = 'prestage_staff_info_team2'
 
 # SQL to create the table if it does not exist
-CREATE_SQL_TABLE="CREATE OR REPLACE TABLE IF NOT EXISTS prestage_staff_info_team2 ( \
+CREATE_SQL_TABLE="CREATE OR REPLACE TABLE prestage_staff_info_team2 ( \
 firstname varchar(50),\
 lastname varchar(50),\
 staffid INTEGER,\
