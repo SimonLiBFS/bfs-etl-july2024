@@ -16,9 +16,9 @@ SNOWFLAKE_WAREHOUSE = 'BF_ETL0624'
 SNOWFLAKE_STAGE = 'S3_STAGE_TRANS_ORDER'
 
 with DAG(
-    "weather_1_data_copy",
+    "weather_1_data_copy_duplicate",
     start_date=datetime(2024, 7, 13),
-    end_date = datetime(2024, 7, 15),
+    end_date = datetime(2024, 7, 16),
     schedule_interval='0 0 * * *',
     default_args={'snowflake_conn_id': SNOWFLAKE_CONN_ID},
     tags=['beaconfire_june_de_team1'],
@@ -26,7 +26,7 @@ with DAG(
 ) as dag:
 
     copy_into_prestg = CopyFromExternalStageToSnowflakeOperator(
-        task_id="task_weather_1_data_copy",
+        task_id="task_weather_1_data_copy_duplicate",
         files=['''weather_1_{{macros.ds_format(ds, '%Y-%m-%d', '%m%d%Y')}}.csv'''],
         table='prestage_weather_team1',
         schema=SNOWFLAKE_SCHEMA,
