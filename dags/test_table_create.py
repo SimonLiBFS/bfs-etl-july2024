@@ -59,7 +59,7 @@ SELECT * FROM US_STOCK_DAILY.DCCM.Symbols;
 
 
 with DAG(
-        DAG_ID,
+        'create_stock_table',
         start_date=datetime(2024, 7, 13),
         end_date = datetime(2024, 7, 15),
         schedule_interval='30 * * * *',
