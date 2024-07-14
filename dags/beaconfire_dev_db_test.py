@@ -15,7 +15,7 @@ SNOWFLAKE_ROLE = 'BF_DEVELOPER0624'
 SNOWFLAKE_WAREHOUSE = 'BF_ETL0624'
 
 
-DAG_ID = "snowflake_to_snowflake_project2"
+DAG_ID = "beaconfire_dev_db_test"
 
 # SQL commands to create target tables
 CREATE_DIM_COMPANY_PROFILE_SQL = f"""
