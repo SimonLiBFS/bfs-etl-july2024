@@ -18,7 +18,7 @@ with DAG(
     "weather_1_data_copy",
     start_date=datetime(2024, 7, 13),
     end_date = datetime(2024, 7, 15),
-    schedule_interval='1 4 * * *',
+    schedule_interval='0 0 * * *',
     default_args={'snowflake_conn_id': SNOWFLAKE_CONN_ID},
     tags=['beaconfire_june_de_team1'],
     catchup=True,
@@ -26,7 +26,7 @@ with DAG(
 
     copy_into_prestg = CopyFromExternalStageToSnowflakeOperator(
         task_id="task_weather_1_data_copy",
-        files=['weather_1_{{ ds[5:7]+ds[8:10]+ds[0:4] }}.csv'],
+        files=['weather_1_07142024.csv'],
         table='prestage_weather_team1',
         schema=SNOWFLAKE_SCHEMA,
         stage=SNOWFLAKE_STAGE,
