@@ -15,25 +15,23 @@ SNOWFLAKE_STAGE = 'S3_STAGE_TRANS_ORDER'
 SNOWFLAKE_TABLE = 'prestage_staff_info_team2'
 
 # SQL to create the table if it does not exist
-create_table_sql = f"""
-CREATE TABLE IF NOT EXISTS {SNOWFLAKE_SCHEMA}.{SNOWFLAKE_TABLE} (
-    name STRING,
-    age INTEGER,
-    gender STRING,
-    nationality STRING,
-    if_married BOOLEAN,
-    eye_color STRING,
-    height FLOAT,
-    employed BOOLEAN,
-    income FLOAT,
-    race STRING
-);
-"""
+CREATE_SQL_TABLE="CREATE TABLE IF NOT EXISTS prestage_staff_info_team2 ( \
+name STRING,\
+age INTEGER,\
+gender STRING,\
+nationality STRING,\
+if_married BOOLEAN,\
+eye_color STRING,\
+height FLOAT,\
+employed BOOLEAN,\
+income FLOAT,\
+race STRING\
+)".format(SNOWFLAKE_DST_TABLE)
 
 with DAG(
     "s3_data_copy_test_team2",
     start_date=datetime(2024, 7, 13),
-    end_date = datetime(2024, 7, 16),
+    end_date = datetime(2024, 7, 13),
     schedule_interval='0 6 * * *',
     default_args={'snowflake_conn_id': SNOWFLAKE_CONN_ID},
     tags=['beaconfire_airflow_team2'],
@@ -42,7 +40,7 @@ with DAG(
     
     create_table = SnowflakeOperator(
         task_id='create_table',
-        sql=create_table_sql,
+        sql=CREATE_SQL_TABLE,
         snowflake_conn_id=SNOWFLAKE_CONN_ID,
         role=SNOWFLAKE_ROLE,
         warehouse=SNOWFLAKE_WAREHOUSE,
@@ -60,9 +58,9 @@ with DAG(
         role=SNOWFLAKE_ROLE,
         warehouse=SNOWFLAKE_WAREHOUSE,
         database=SNOWFLAKE_DATABASE,
-        file_format='''(type = 'CSV', field_delimiter = ',', SKIP_HEADER = 1,
-            NULL_IF =('NULL','null',''), empty_field_as_null = true, FIELD_OPTIONALLY_ENCLOSED_BY = '\"',
-            ESCAPE_UNENCLOSED_FIELD = NONE, RECORD_DELIMITER = '\n', error_on_column_count_mismatch=false)''',
+        file_format='''(type = 'CSV', field_delimiter = ',', SKIP_HEADER = 1 \
+            NULL_IF =('NULL','null',''), empty_field_as_null = true, FIELD_OPTIONALLY_ENCLOSED_BY = '\"' \
+            ESCAPE_UNENCLOSED_FIELD = NONE RECORD_DELIMITER = '\n')''',
     )
 
     create_table >> copy_into_prestg
