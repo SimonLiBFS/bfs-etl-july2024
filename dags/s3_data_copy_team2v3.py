@@ -31,7 +31,7 @@ certificate varchar(50)\
 )".format(SNOWFLAKE_TABLE)
 
 with DAG(
-    "s3_data_copy_test_team2",
+    "s3_data_copy_test_team2v3",
     start_date=datetime(2024, 7, 12),
     end_date = datetime(2024, 7, 16),
     schedule_interval='0 6 * * *',
