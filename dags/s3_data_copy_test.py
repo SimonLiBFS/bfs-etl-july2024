@@ -27,22 +27,26 @@ with DAG(
     catchup=True,
 ) as dag:
 
-    copy_into_prestg = CopyFromExternalStageToSnowflakeOperator(
-        task_id='team3_project1',
-        files=['atp_team3_{{ ds[5:7]+ds[8:10]+ds[0:4] }}.csv'],
-        table='prestage_atp_team3',
-        role=SNOWFLAKE_ROLE,
-        schema=SNOWFLAKE_SCHEMA,
-        stage=SNOWFLAKE_STAGE,
-        warehouse=SNOWFLAKE_WAREHOUSE,
-        database=SNOWFLAKE_DATABASE,
-        file_format='''(type = 'CSV', field_delimiter = ',', SKIP_HEADER = 1 \
-            NULL_IF =('NULL','null',''), empty_field_as_null = true, FIELD_OPTIONALLY_ENCLOSED_BY = '\"' \
-            ESCAPE_UNENCLOSED_FIELD = NONE RECORD_DELIMITER = '\n')''',
-    )
+    try:
+        copy_into_prestg = CopyFromExternalStageToSnowflakeOperator(
+            task_id='team3_project1',
+            files=['atp_team3_{{ ds[5:7]+ds[8:10]+ds[0:4] }}.csv'],
+            table='prestage_atp_team3',
+            schema=SNOWFLAKE_SCHEMA,
+            stage=SNOWFLAKE_STAGE,
+            role=SNOWFLAKE_ROLE,
+            warehouse=SNOWFLAKE_WAREHOUSE,
+            database=SNOWFLAKE_DATABASE,
+            file_format='''(type = 'CSV', field_delimiter = ',', SKIP_HEADER = 1 
+                NULL_IF =('NULL','null',''), empty_field_as_null = true, FIELD_OPTIONALLY_ENCLOSED_BY = '"'
+                ESCAPE_UNENCLOSED_FIELD = NONE, RECORD_DELIMITER = '\\n')''',
+            dag=dag,
+        )
 
-    copy_into_prestg
-          
+        copy_into_prestg
+    except Exception as e:
+        logging.error("Error occurred: %s", e)
+        raise
         
     
 
