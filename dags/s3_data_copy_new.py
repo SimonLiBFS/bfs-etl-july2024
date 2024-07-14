@@ -26,7 +26,7 @@ gender varchar(50),\
 city varchar(250),\
 country varchar(50),\
 phone varchar(50),\
-isgift INTEGER,\
+isgift varchar(50),\
 payment varchar(250)\
 )".format(SNOWFLAKE_TABLE)
 
