@@ -32,6 +32,9 @@ with DAG(
         table=SNOWFLAKE_TABLE,
         schema=SNOWFLAKE_SCHEMA,
         stage=SNOWFLAKE_STAGE,
+        role=SNOWFLAKE_ROLE,
+        warehouse=SNOWFLAKE_WAREHOUSE,
+        database=SNOWFLAKE_DATABASE,
         file_format='''(type = 'CSV', field_delimiter = ',', SKIP_HEADER = 1 \
             NULL_IF =('NULL','null',''), empty_field_as_null = true, FIELD_OPTIONALLY_ENCLOSED_BY = '\"' \
             ESCAPE_UNENCLOSED_FIELD = NONE RECORD_DELIMITER = '\n')''',
