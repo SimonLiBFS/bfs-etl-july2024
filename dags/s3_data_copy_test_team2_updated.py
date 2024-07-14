@@ -26,7 +26,7 @@ height FLOAT,\
 employed BOOLEAN,\
 income FLOAT,\
 race STRING\
-)".format(SNOWFLAKE_DST_TABLE)
+)".format(SNOWFLAKE_TABLE)
 
 with DAG(
     "s3_data_copy_test_team2",
