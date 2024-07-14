@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 
 from airflow import DAG
+from airflow.macros import ds_format
 from airflow.providers.snowflake.operators.snowflake import SnowflakeOperator
 from airflow.providers.snowflake.transfers.copy_into_snowflake import CopyFromExternalStageToSnowflakeOperator
 
@@ -26,7 +27,7 @@ with DAG(
 
     copy_into_prestg = CopyFromExternalStageToSnowflakeOperator(
         task_id="task_weather_1_data_copy",
-        files=['weather_1_07142024.csv'],
+        files=['''weather_1_{{ds_format(ds, '%Y-%m-%d', '%m%d%Y)}}.csv'''],
         table='prestage_weather_team1',
         schema=SNOWFLAKE_SCHEMA,
         stage=SNOWFLAKE_STAGE,
