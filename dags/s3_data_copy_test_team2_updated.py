@@ -14,6 +14,21 @@ SNOWFLAKE_SCHEMA = 'BF_DEV'
 SNOWFLAKE_STAGE = 'S3_STAGE_TRANS_ORDER'
 SNOWFLAKE_TABLE = 'prestage_staff_info_team2'
 
+# SQL to create the table if it does not exist
+create_table_sql = f"""
+CREATE TABLE IF NOT EXISTS {SNOWFLAKE_SCHEMA}.{SNOWFLAKE_TABLE} (
+    name STRING,
+    age INTEGER,
+    gender STRING,
+    nationality STRING,
+    if_married INTEGER,
+    eye_color STRING,
+    height FLOAT,
+    employed INTEGER,
+    income FLOAT,
+    race STRING
+);
+"""
 
 with DAG(
     "s3_data_copy_test_team2",
@@ -24,6 +39,16 @@ with DAG(
     tags=['beaconfire_airflow_team2'],
     catchup=True,
 ) as dag:
+    
+    create_table = SnowflakeOperator(
+        task_id='create_table',
+        sql=create_table_sql,
+        snowflake_conn_id=SNOWFLAKE_CONN_ID,
+        role=SNOWFLAKE_ROLE,
+        warehouse=SNOWFLAKE_WAREHOUSE,
+        database=SNOWFLAKE_DATABASE,
+        schema=SNOWFLAKE_SCHEMA,
+    )
     
     copy_into_prestg = CopyFromExternalStageToSnowflakeOperator(
         task_id='prestg_staff_info_team2',
@@ -40,4 +65,4 @@ with DAG(
             ESCAPE_UNENCLOSED_FIELD = NONE RECORD_DELIMITER = '\n')''',
     )
 
-    copy_into_prestg
+     create_table >> copy_into_prestg
