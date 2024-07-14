@@ -16,7 +16,7 @@ SNOWFLAKE_WAREHOUSE = 'BF_ETL0624'
 SNOWFLAKE_STAGE = 'S3_STAGE_TRANS_ORDER'
 
 with DAG(
-    "weather_1_data_copy_backfill",
+    "weather_1_data_copy",
     start_date=datetime(2024, 7, 13),
     end_date = datetime(2024, 7, 16),
     schedule_interval='0 0 * * *',
