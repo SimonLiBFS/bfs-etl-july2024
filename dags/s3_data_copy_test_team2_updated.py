@@ -27,7 +27,7 @@ with DAG(
     
     copy_into_prestg = CopyFromExternalStageToSnowflakeOperator(
         task_id='prestg_staff_info_tram2',
-        files=['staff_info_{{ ds[5:7]+ds[8:10]+ds[0:4] }}.csv'],
+        files=['staff_info_team2_{{ ds[5:7]+ds[8:10]+ds[0:4] }}.csv'],
         snowflake_conn_id=SNOWFLAKE_CONN_ID,
         table=SNOWFLAKE_TABLE,
         schema=SNOWFLAKE_SCHEMA,
