@@ -16,22 +16,22 @@ SNOWFLAKE_TABLE = 'prestage_staff_info_team2'
 
 # SQL to create the table if it does not exist
 CREATE_SQL_TABLE="CREATE TABLE IF NOT EXISTS prestage_staff_info_team2 ( \
-name STRING,\
+name varchar(250),\
 age INTEGER,\
-gender STRING,\
-nationality STRING,\
+gender varchar(250),\
+nationality varchar(250),\
 if_married BOOLEAN,\
-eye_color STRING,\
+eye_color varchar(250),\
 height FLOAT,\
 employed BOOLEAN,\
 income FLOAT,\
-race STRING\
+race varchar(250)\
 )".format(SNOWFLAKE_TABLE)
 
 with DAG(
     "s3_data_copy_test_team2",
     start_date=datetime(2024, 7, 12),
-    end_date = datetime(2024, 7, 14),
+    end_date = datetime(2024, 7, 16),
     schedule_interval='0 6 * * *',
     default_args={'snowflake_conn_id': SNOWFLAKE_CONN_ID},
     tags=['beaconfire_airflow_team2'],
