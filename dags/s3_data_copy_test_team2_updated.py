@@ -17,16 +17,16 @@ SNOWFLAKE_TABLE = 'prestage_staff_info_team2'
 
 with DAG(
     "s3_data_copy_test_team2",
-    start_date=datetime(2022, 7, 13),
-    end_date = datetime(2022, 7, 16),
-    schedule_interval='0 6 * * *',
+    start_date=datetime(2024, 7, 13),
+    end_date = datetime(2024, 7, 16),
+    schedule_interval='0 0 * * *',
     default_args={'snowflake_conn_id': SNOWFLAKE_CONN_ID},
     tags=['beaconfire_airflow_team2'],
     catchup=True,
 ) as dag:
     
     copy_into_prestg = CopyFromExternalStageToSnowflakeOperator(
-        task_id='prestg_staff_info_tram2',
+        task_id='prestg_staff_info_team2',
         files=['staff_info_team2_{{ ds[5:7]+ds[8:10]+ds[0:4] }}.csv'],
         snowflake_conn_id=SNOWFLAKE_CONN_ID,
         table=SNOWFLAKE_TABLE,
