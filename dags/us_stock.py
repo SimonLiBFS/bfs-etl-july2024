@@ -64,7 +64,7 @@ with DAG(
         sql=f"""
         CREATE TABLE IF NOT EXISTS {TARGET_DATABASE}.{TARGET_SCHEMA}.{TARGET_TABLE_STOCK_HISTORY} AS
         SELECT * FROM {SOURCE_DATABASE}.{SOURCE_SCHEMA}.{SOURCE_TABLE_STOCK_HISTORY}
-        WHERE DATE < '{ ds }';
+        WHERE DATE < '{{{{ ds }}}}';
         """,
         snowflake_conn_id=SNOWFLAKE_CONN_ID,
         warehouse=SNOWFLAKE_WAREHOUSE,
@@ -76,7 +76,7 @@ with DAG(
         sql=f"""
         INSERT INTO {TARGET_DATABASE}.{TARGET_SCHEMA}.{TARGET_TABLE_STOCK_HISTORY}
         SELECT * FROM {SOURCE_DATABASE}.{SOURCE_SCHEMA}.{SOURCE_TABLE_STOCK_HISTORY}
-        WHERE DATE = '{ ds }';
+        WHERE DATE = '{{{{ ds }}}}';
         """,
         snowflake_conn_id=SNOWFLAKE_CONN_ID,
         warehouse=SNOWFLAKE_WAREHOUSE,
