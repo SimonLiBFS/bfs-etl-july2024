@@ -60,9 +60,9 @@ SELECT * FROM US_STOCK_DAILY.DCCM.Symbols;
 
 with DAG(
         'create_stock_table',
-        start_date=datetime(2024, 7, 13),
+        start_date=datetime(2024, 7, 14),
         end_date = datetime(2024, 7, 15),
-        schedule_interval='* * * * *',
+        schedule_interval='0 * * * *',
         default_args={'snowflake_conn_id': SNOWFLAKE_CONN_ID},
         tags=['beaconfire_june_de_team2'],
         catchup=True,
