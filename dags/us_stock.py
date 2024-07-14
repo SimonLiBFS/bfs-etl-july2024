@@ -34,8 +34,8 @@ with DAG(
     tags=['beaconfire_june_de_team1'],
 ) as dag:
 
-    copy_company_profile_table = SnowflakeOperator(
-        task_id='copy_company_profile_table',
+    create_company_profile_table = SnowflakeOperator(
+        task_id='create_company_profile_table',
         sql=f"""
         CREATE TABLE IF NOT EXISTS {TARGET_DATABASE}.{TARGET_SCHEMA}.{TARGET_TABLE_COMPANY_PROFILE} AS
         SELECT * FROM {SOURCE_DATABASE}.{SOURCE_SCHEMA}.{SOURCE_TABLE_COMPANY_PROFILE} WHERE 1=0;
@@ -45,8 +45,19 @@ with DAG(
         role=SNOWFLAKE_ROLE,
     )
 
-    copy_stock_history_table = SnowflakeOperator(
-        task_id='copy_stock_history_table',
+    copy_company_profile_data = SnowflakeOperator(
+        task_id='copy_company_profile_data',
+        sql=f"""
+        INSERT INTO {TARGET_DATABASE}.{TARGET_SCHEMA}.{TARGET_TABLE_COMPANY_PROFILE}
+        SELECT * FROM {SOURCE_DATABASE}.{SOURCE_SCHEMA}.{SOURCE_TABLE_COMPANY_PROFILE};
+        """,
+        snowflake_conn_id=SNOWFLAKE_CONN_ID,
+        warehouse=SNOWFLAKE_WAREHOUSE,
+        role=SNOWFLAKE_ROLE,
+    )
+    
+    create_stock_history_table = SnowflakeOperator(
+        task_id='create_stock_history_table',
         sql=f"""
         CREATE TABLE IF NOT EXISTS {TARGET_DATABASE}.{TARGET_SCHEMA}.{TARGET_TABLE_STOCK_HISTORY} AS
         SELECT * FROM {SOURCE_DATABASE}.{SOURCE_SCHEMA}.{SOURCE_TABLE_STOCK_HISTORY} WHERE 1=0;
@@ -56,8 +67,20 @@ with DAG(
         role=SNOWFLAKE_ROLE,
     )
 
-    copy_symbols_table = SnowflakeOperator(
-        task_id='copy_symbols_table',
+    copy_stock_history_data = SnowflakeOperator(
+        task_id='copy_stock_history_data',
+        sql=f"""
+        INSERT INTO {TARGET_DATABASE}.{TARGET_SCHEMA}.{TARGET_TABLE_STOCK_HISTORY}
+        SELECT * FROM {SOURCE_DATABASE}.{SOURCE_SCHEMA}.{SOURCE_TABLE_STOCK_HISTORY};
+        """,
+        snowflake_conn_id=SNOWFLAKE_CONN_ID,
+        warehouse=SNOWFLAKE_WAREHOUSE,
+        role=SNOWFLAKE_ROLE,
+    )
+    
+    
+    create_symbols_table = SnowflakeOperator(
+        task_id='create_symbols_table',
         sql=f"""
         CREATE TABLE IF NOT EXISTS {TARGET_DATABASE}.{TARGET_SCHEMA}.{TARGET_TABLE_SYMBOLS} AS
         SELECT * FROM {SOURCE_DATABASE}.{SOURCE_SCHEMA}.{SOURCE_TABLE_SYMBOLS} WHERE 1=0;
@@ -67,4 +90,15 @@ with DAG(
         role=SNOWFLAKE_ROLE,
     )
     
-    copy_company_profile_table >> copy_stock_history_table >> copy_symbols_table
+    copy_symbols_data = SnowflakeOperator(
+        task_id='copy_symbols_data',
+        sql=f"""
+        INSERT INTO {TARGET_DATABASE}.{TARGET_SCHEMA}.{TARGET_TABLE_SYMBOLS}
+        SELECT * FROM {SOURCE_DATABASE}.{SOURCE_SCHEMA}.{SOURCE_TABLE_SYMBOLS};
+        """,
+        snowflake_conn_id=SNOWFLAKE_CONN_ID,
+        warehouse=SNOWFLAKE_WAREHOUSE,
+        role=SNOWFLAKE_ROLE,
+    )
+    
+    create_company_profile_table >> copy_company_profile_data >> create_stock_history_table >> copy_stock_history_data >> create_symbols_table >> copy_symbols_data
