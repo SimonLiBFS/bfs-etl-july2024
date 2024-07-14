@@ -50,7 +50,8 @@ with DAG(
     
     copy_into_prestg = CopyFromExternalStageToSnowflakeOperator(
         task_id='prestg_staff_info_team2',
-        files=['staff_info_team2_{{ ds[5:7]+ds[8:10]+ds[0:4] }}.csv'],
+        files=['staff_info_team2_07132024.csv'],
+        #files=['staff_info_team2_{{ ds[5:7]+ds[8:10]+ds[0:4] }}.csv'],
         snowflake_conn_id=SNOWFLAKE_CONN_ID,
         table=SNOWFLAKE_TABLE,
         schema=SNOWFLAKE_SCHEMA,
@@ -58,9 +59,17 @@ with DAG(
         role=SNOWFLAKE_ROLE,
         warehouse=SNOWFLAKE_WAREHOUSE,
         database=SNOWFLAKE_DATABASE,
-        file_format='''(type = 'CSV', field_delimiter = ',', SKIP_HEADER = 1 \
-            NULL_IF =('NULL','null',''), empty_field_as_null = true, FIELD_OPTIONALLY_ENCLOSED_BY = '\"' \
-            ESCAPE_UNENCLOSED_FIELD = NONE RECORD_DELIMITER = '\n')''',
+        file_format='''(
+            TYPE = 'CSV', 
+            FIELD_DELIMITER = ',', 
+            SKIP_HEADER = 1,
+            NULL_IF = ('NULL','null',''), 
+            EMPTY_FIELD_AS_NULL = TRUE, 
+            FIELD_OPTIONALLY_ENCLOSED_BY = '"', 
+            ESCAPE_UNENCLOSED_FIELD = NONE, 
+            RECORD_DELIMITER = '\n',
+            ERROR_ON_COLUMN_COUNT_MISMATCH = FALSE
+        )''',
     )
 
     create_table >> copy_into_prestg
