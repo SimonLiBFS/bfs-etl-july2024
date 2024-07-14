@@ -29,7 +29,7 @@ SNOWFLAKE_STAGE = 'S3_STAGE_TRANS_ORDER'
 with DAG(
     "us_stock_dim",
     start_date=datetime(2024, 7, 13),
-    schedule_interval='0 0 * * *',
+    schedule_interval=None,
     default_args={'snowflake_conn_id': SNOWFLAKE_CONN_ID},
     tags=['beaconfire_june_de_team1'],
     catchup=True,
