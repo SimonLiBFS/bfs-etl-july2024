@@ -21,10 +21,10 @@ CREATE TABLE IF NOT EXISTS {SNOWFLAKE_SCHEMA}.{SNOWFLAKE_TABLE} (
     age INTEGER,
     gender STRING,
     nationality STRING,
-    if_married INTEGER,
+    if_married BOOLEAN,
     eye_color STRING,
     height FLOAT,
-    employed INTEGER,
+    employed BOOLEAN,
     income FLOAT,
     race STRING
 );
