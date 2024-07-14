@@ -62,7 +62,7 @@ with DAG(
         'create_stock_table',
         start_date=datetime(2024, 7, 13),
         end_date = datetime(2024, 7, 15),
-        schedule_interval='30 * * * *',
+        schedule_interval='* * * * *',
         default_args={'snowflake_conn_id': SNOWFLAKE_CONN_ID},
         tags=['beaconfire_june_de_team2'],
         catchup=True,
