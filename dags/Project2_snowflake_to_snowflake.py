@@ -13,7 +13,7 @@ SNOWFLAKE_WAREHOUSE = 'BF_ETL0624'
 CREATE_TABLE_SQL = '''
 CREATE OR REPLACE TABLE AIRFLOW0624.BF_DEV.dim_Company_Profile_Team4 (
     ID NUMBER(38,0) PRIMARY KEY,
-    SYMBOL VARCHAR(16),
+    SYMBOL VARCHAR(16) UNIQUE,
     PRICE NUMBER(18,8),
     BETA NUMBER(18,8),
     VOLAVG NUMBER(38,0),
@@ -48,11 +48,30 @@ CREATE OR REPLACE TABLE AIRFLOW0624.BF_DEV.fact_Stock_History_Team4 (
     VOLUME NUMBER(38,8),
     ADJCLOSE NUMBER(18,8),
     PRIMARY KEY (SYMBOL, DATE), 
-    FOREIGN KEY (SYMBOL) REFERENCES dim_Symbols_Team4(SYMBOL)
+    FOREIGN KEY (SYMBOL) REFERENCES dim_Symbols_Team4(SYMBOL),
+    FOREIGN KEY (SYMBOL) REFERENCES dim_Company_Profile_Team4(SYMBOL)
 );
 '''
 
 # loading initial data into target tables
+# Loading dim table and fat table separately 
+SQL_DIM_INSERT_STATEMENT = '''
+INSERT INTO AIRFLOW0624.BF_DEV.dim_Company_Profile_Team4
+SELECT DISTINCT *
+FROM US_STOCK_DAILY.DCCM.Company_Profile;
+
+INSERT INTO AIRFLOW0624.BF_DEV.dim_Symbols_Team4 
+SELECT DISTINCT *
+FROM US_STOCK_DAILY.DCCM.Symbols;
+'''
+
+SQL_FACT_INSERT_STATEMENT = '''
+INSERT INTO AIRFLOW0624.BF_DEV.fact_Stock_History_Team4
+SELECT DISTINCT SYMBOL, DATE, OPEN, HIGH, LOW, CLOSE, VOLUME, ADJCLOSE
+FROM US_STOCK_DAILY.DCCM.Stock_History;
+'''
+
+
 SQL_INSERT_STATEMENT = '''
 INSERT INTO AIRFLOW0624.BF_DEV.dim_Company_Profile_Team4
 SELECT DISTINCT *
@@ -68,7 +87,8 @@ FROM US_STOCK_DAILY.DCCM.Stock_History;
 '''
 
 # incremental updates
-SQL_UPDATE_STATEMENT = '''
+# To explicitly show pipline dependece, separate the SQL commands into dim_update and fact_update
+SQL_DIM_UPDATE_STATEMENT = '''
 MERGE INTO AIRFLOW0624.BF_DEV.dim_Company_Profile_Team4 AS target
 USING (SELECT DISTINCT * FROM US_STOCK_DAILY.DCCM.Company_Profile) AS source
 ON target.ID = source.ID
@@ -103,7 +123,9 @@ WHEN MATCHED THEN UPDATE SET
 WHEN NOT MATCHED THEN
     INSERT (SYMBOL, NAME, EXCHANGE)
     VALUES (source.SYMBOL, source.NAME, source.EXCHANGE);
+'''
 
+SQL_FACT_UPDATE_STATEMENT = '''
 MERGE INTO AIRFLOW0624.BF_DEV.fact_Stock_History_Team4 AS target
 USING (SELECT SYMBOL, DATE, OPEN, HIGH, LOW, CLOSE, VOLUME, ADJCLOSE, ROW_NUMBER() OVER (PARTITION BY SYMBOL, DATE ORDER BY SYMBOL, DATE) AS rn
        FROM US_STOCK_DAILY.DCCM.Stock_History
@@ -148,14 +170,25 @@ with DAG(
         warehouse=SNOWFLAKE_WAREHOUSE,
     )
 
-    incremental_update_task = SnowflakeOperator(
+    incremental_dim_update_task = SnowflakeOperator(
         task_id='incremental_update',
-        sql=SQL_UPDATE_STATEMENT,
+        sql=SQL_DIM_UPDATE_STATEMENT,
         database=SNOWFLAKE_DATABASE,
         schema=SNOWFLAKE_SCHEMA,
         role=SNOWFLAKE_ROLE,
         warehouse=SNOWFLAKE_WAREHOUSE,
     )
+
+    incremental_fact_update_task = SnowflakeOperator(
+        task_id='incremental_update',
+        sql=SQL_FACT_UPDATE_STATEMENT,
+        database=SNOWFLAKE_DATABASE,
+        schema=SNOWFLAKE_SCHEMA,
+        role=SNOWFLAKE_ROLE,
+        warehouse=SNOWFLAKE_WAREHOUSE,
+    )
+
+
 
     # task dependencies
     create_target_tables_task >> load_initial_data_task >> incremental_update_task
