@@ -73,7 +73,8 @@ with DAG(
         task_id='add_company_profile_constraints',
         sql=f"""
         ALTER TABLE {TARGET_DATABASE}.{TARGET_SCHEMA}.{TARGET_TABLE_COMPANY_PROFILE}
-        ADD CONSTRAINT pk_dim_company_profile PRIMARY KEY (id),
+        ADD CONSTRAINT pk_dim_company_profile PRIMARY KEY (id);
+        ALTER TABLE {TARGET_DATABASE}.{TARGET_SCHEMA}.{TARGET_TABLE_COMPANY_PROFILE}
         ADD CONSTRAINT fk_dim_company_profile_symbol FOREIGN KEY (symbol) REFERENCES {TARGET_DATABASE}.{TARGET_SCHEMA}.{TARGET_TABLE_SYMBOLS}(symbol);
         """,
         snowflake_conn_id=SNOWFLAKE_CONN_ID,
