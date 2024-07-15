@@ -2,7 +2,6 @@ import os
 from datetime import datetime
 
 from airflow import DAG
-from airflow.utils import timezone
 from airflow.providers.snowflake.operators.snowflake import SnowflakeOperator
 from airflow.providers.snowflake.transfers.copy_into_snowflake import CopyFromExternalStageToSnowflakeOperator
 
@@ -45,7 +44,7 @@ create table if not exists prestage_weather_team1_create_test (
 )
 '''
 
-CURR_DATE = timezone.utcnow().strftime('%m%d%Y')
+CURR_DATE = datetime.utcnow().strftime('%m%d%Y')
 
 with DAG(
     "weather_1_create_copy",
