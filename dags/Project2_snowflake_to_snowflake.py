@@ -14,7 +14,7 @@ SNOWFLAKE_WAREHOUSE = 'BF_ETL0624'
 
 # creating target tables
 CREATE_TABLE_SQL = '''
-CREATE OR REPLACE TABLE AIRFLOW0624.BF_DEV.dim_Company_Profile_Team4 (
+CREATE OR REPLACE TABLE AIRFLOW0624.BF_DEV.dim_Company_Profile_Team4_test (
     ID NUMBER(38,0) PRIMARY KEY,
     SYMBOL VARCHAR(16) UNIQUE,
     PRICE NUMBER(18,8),
@@ -35,13 +35,13 @@ CREATE OR REPLACE TABLE AIRFLOW0624.BF_DEV.dim_Company_Profile_Team4 (
     DCF NUMBER(18,8)
 );
 
-CREATE OR REPLACE TABLE AIRFLOW0624.BF_DEV.dim_Symbols_Team4 (
+CREATE OR REPLACE TABLE AIRFLOW0624.BF_DEV.dim_Symbols_Team4_test (
     SYMBOL VARCHAR(16) PRIMARY KEY,
     NAME VARCHAR(256),
     EXCHANGE VARCHAR(64)
 );
 
-CREATE OR REPLACE TABLE AIRFLOW0624.BF_DEV.fact_Stock_History_Team4 (
+CREATE OR REPLACE TABLE AIRFLOW0624.BF_DEV.fact_Stock_History_Team4_test (
     SYMBOL VARCHAR(16),
     DATE DATE,
     OPEN NUMBER(18,8),
@@ -59,32 +59,32 @@ CREATE OR REPLACE TABLE AIRFLOW0624.BF_DEV.fact_Stock_History_Team4 (
 # loading initial data into target tables
 # Loading dim table and fat table separately 
 SQL_DIM_INSERT_STATEMENT = '''
-INSERT INTO AIRFLOW0624.BF_DEV.dim_Company_Profile_Team4
+INSERT INTO AIRFLOW0624.BF_DEV.dim_Company_Profile_Team4_test
 SELECT DISTINCT *
 FROM US_STOCK_DAILY.DCCM.Company_Profile;
 
-INSERT INTO AIRFLOW0624.BF_DEV.dim_Symbols_Team4 
+INSERT INTO AIRFLOW0624.BF_DEV.dim_Symbols_Team4_test
 SELECT DISTINCT *
 FROM US_STOCK_DAILY.DCCM.Symbols;
 '''
 
 SQL_FACT_INSERT_STATEMENT = '''
-INSERT INTO AIRFLOW0624.BF_DEV.fact_Stock_History_Team4
+INSERT INTO AIRFLOW0624.BF_DEV.fact_Stock_History_Team4_test
 SELECT DISTINCT SYMBOL, DATE, OPEN, HIGH, LOW, CLOSE, VOLUME, ADJCLOSE
 FROM US_STOCK_DAILY.DCCM.Stock_History;
 '''
 
 
 SQL_INSERT_STATEMENT = '''
-INSERT INTO AIRFLOW0624.BF_DEV.dim_Company_Profile_Team4
+INSERT INTO AIRFLOW0624.BF_DEV.dim_Company_Profile_Team4_test
 SELECT DISTINCT *
 FROM US_STOCK_DAILY.DCCM.Company_Profile;
 
-INSERT INTO AIRFLOW0624.BF_DEV.dim_Symbols_Team4 
+INSERT INTO AIRFLOW0624.BF_DEV.dim_Symbols_Team4_test
 SELECT DISTINCT *
 FROM US_STOCK_DAILY.DCCM.Symbols;
 
-INSERT INTO AIRFLOW0624.BF_DEV.fact_Stock_History_Team4
+INSERT INTO AIRFLOW0624.BF_DEV.fact_Stock_History_Team4_test
 SELECT DISTINCT SYMBOL, DATE, OPEN, HIGH, LOW, CLOSE, VOLUME, ADJCLOSE
 FROM US_STOCK_DAILY.DCCM.Stock_History;
 '''
@@ -92,7 +92,7 @@ FROM US_STOCK_DAILY.DCCM.Stock_History;
 # incremental updates
 # To explicitly show pipline dependece, separate the SQL commands into dim_update and fact_update
 SQL_DIM_UPDATE_STATEMENT = '''
-MERGE INTO AIRFLOW0624.BF_DEV.dim_Company_Profile_Team4 AS target
+MERGE INTO AIRFLOW0624.BF_DEV.dim_Company_Profile_Team4_test AS target
 USING (SELECT DISTINCT * FROM US_STOCK_DAILY.DCCM.Company_Profile) AS source
 ON target.ID = source.ID
 WHEN MATCHED THEN UPDATE SET
@@ -117,7 +117,7 @@ WHEN NOT MATCHED THEN
     INSERT (ID, SYMBOL, PRICE, BETA, VOLAVG, MKTCAP, LASTDIV, RANGE, CHANGES, COMPANYNAME, EXCHANGE, INDUSTRY, WEBSITE, DESCRIPTION, CEO, SECTOR, DCFDIFF, DCF)
     VALUES (source.ID, source.SYMBOL, source.PRICE, source.BETA, source.VOLAVG, source.MKTCAP, source.LASTDIV, source.RANGE, source.CHANGES, source.COMPANYNAME, source.EXCHANGE, source.INDUSTRY, source.WEBSITE, source.DESCRIPTION, source.CEO, source.SECTOR, source.DCFDIFF, source.DCF);
 
-MERGE INTO AIRFLOW0624.BF_DEV.dim_Symbols_Team4 AS target
+MERGE INTO AIRFLOW0624.BF_DEV.dim_Symbols_Team4_test AS target
 USING (SELECT DISTINCT * FROM US_STOCK_DAILY.DCCM.Symbols) AS source
 ON target.SYMBOL = source.SYMBOL
 WHEN MATCHED THEN UPDATE SET
@@ -129,7 +129,7 @@ WHEN NOT MATCHED THEN
 '''
 
 SQL_FACT_UPDATE_STATEMENT = '''
-MERGE INTO AIRFLOW0624.BF_DEV.fact_Stock_History_Team4 AS target
+MERGE INTO AIRFLOW0624.BF_DEV.fact_Stock_History_Team4_test AS target
 USING (SELECT SYMBOL, DATE, OPEN, HIGH, LOW, CLOSE, VOLUME, ADJCLOSE, ROW_NUMBER() OVER (PARTITION BY SYMBOL, DATE ORDER BY SYMBOL, DATE) AS rn
        FROM US_STOCK_DAILY.DCCM.Stock_History
 ) AS source
@@ -147,7 +147,7 @@ WHEN NOT MATCHED AND source.rn = 1 THEN
 '''
 
 SQL_FACT_UPDATE_STATEMENT_ver2 = '''
-INSERT INTO AIRFLOW0624.BF_DEV.fact_Stock_History_Team4
+INSERT INTO AIRFLOW0624.BF_DEV.fact_Stock_History_Team4_test
 SELECT SYMBOL, DATE, OPEN, HIGH, LOW, CLOSE, VOLUME, ADJCLOSE
 FROM US_STOCK_DAILY.DCCM.Stock_History h
 WHERE h.DATE > '{}'
@@ -155,16 +155,18 @@ WHERE h.DATE > '{}'
 
 with DAG(
     'Project2_snowflake_to_snowflake',
-    start_date=datetime(2024, 7, 13),
-    schedule_interval='30 * * * *',  
+    start_date=datetime(2024, 7, 14),
+    schedule='@daily',  
     default_args={'snowflake_conn_id': SNOWFLAKE_CONN_ID},
     tags=['beaconfire'],
     catchup=False,  
 ) as dag:
     def branch(**kwargs):
         #to determine if a initial set up (create table and insert initial data needs to run)
-        date = kwargs['ds']
-        if date == dag.start_date:
+        date = kwargs['logical_date'].replace(hour=0, minute=0, second=0, microsecond=0)
+        print(dag.start_date)
+        print(date)
+        if date == dag.start_date.replace(hour=0, minute=0, second=0, microsecond=0):
             return 'create_target_tables'
         else:
             return 'skip_set_up_and_loading'
@@ -214,7 +216,7 @@ with DAG(
         schema=SNOWFLAKE_SCHEMA,
         role=SNOWFLAKE_ROLE,
         warehouse=SNOWFLAKE_WAREHOUSE,
-        trigger_rule = 'one_success'
+        #trigger_rule = 'one_success'
     )
 
     incremental_fact_update_task = SnowflakeOperator(
@@ -224,7 +226,6 @@ with DAG(
         schema=SNOWFLAKE_SCHEMA,
         role=SNOWFLAKE_ROLE,
         warehouse=SNOWFLAKE_WAREHOUSE,
-        
     )
 
     # task dependencies

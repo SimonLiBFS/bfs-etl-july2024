@@ -16,10 +16,9 @@ SNOWFLAKE_STAGE = 'S3_STAGE_TRANS_ORDER'
 SNOWFLAKE_DST_TABLE = 'prestage_UKRailwaySale_Team4'
 
 start_month = 7
-start_date = 12
+start_day = 12
 end_month = 7
-end_date = 16
-#
+end_day = 16
 file_to_copy = 'UKRailwaySale_4_'+str(datetime.today().strftime("%m/%d/%Y"))[:10].replace('/','')+'.csv'
 
 
@@ -46,8 +45,8 @@ RefundRequest BOOLEAN\
 
 with DAG(
     "s3_data_copy_test_team4",
-    start_date=datetime(2024, 7, 12),
-    end_date = datetime(2024, 7, 16),
+    start_date=datetime(2024, start_month, start_day),
+    end_date = datetime(2024, end_month, end_day),
     #everyday at 10AM
     #schedule = '0 10 * * *',
     #evey two hours, for demo purpose
@@ -69,6 +68,7 @@ with DAG(
     copy_into_prestg = CopyFromExternalStageToSnowflakeOperator(
         task_id='UKRailwaySale',
         files = [file_to_copy],
+        #files=['UKRailwaySale_4_07132024.csv'],
         #files=['UKRailwaySale_4_{{ ds[5:7]+ds[8:10]+ds[0:4] }}.csv'],
         table=SNOWFLAKE_DST_TABLE,
         schema=SNOWFLAKE_SCHEMA,
