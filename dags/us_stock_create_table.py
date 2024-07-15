@@ -105,7 +105,8 @@ with DAG(
     )
     
     create_symbols_table >> add_symbols_constraints
+    add_symbols_constraints >> add_company_profile_constraints
     create_symbols_table >> add_company_profile_constraints
     create_company_profile_table >> add_company_profile_constraints
     create_stock_history_table >> add_stock_history_constraints
-    create_symbols_table >> add_stock_history_constraints
+    add_company_profile_constraints >> add_stock_history_constraints
