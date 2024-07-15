@@ -123,7 +123,7 @@ WHEN NOT MATCHED AND source.rn = 1 THEN
 
 with DAG(
     'Project2_snowflake_to_snowflake',
-    start_date=datetime(2024, 7, 13),
+    start_date=datetime(2024, 7, 15),
     schedule_interval='30 * * * *',  
     default_args={'snowflake_conn_id': SNOWFLAKE_CONN_ID},
     tags=['beaconfire'],
