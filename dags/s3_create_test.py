@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 
 from airflow import DAG
-from airflow.macros import ds_format
+from airflow.utils import timezone
 from airflow.providers.snowflake.operators.snowflake import SnowflakeOperator
 from airflow.providers.snowflake.transfers.copy_into_snowflake import CopyFromExternalStageToSnowflakeOperator
 
@@ -45,6 +45,8 @@ create table if not exists prestage_weather_team1_create_test (
 )
 '''
 
+CURR_DATE = current_date = timezone.utcnow().strftime('%m%d%Y')
+
 with DAG(
     "weather_1_create_copy",
     start_date=datetime(2024, 7, 13),
@@ -66,7 +68,7 @@ with DAG(
 
     copy_into_prestg = CopyFromExternalStageToSnowflakeOperator(
         task_id="task_weather_1_data_copy",
-        files=["weather_1_{{macros.ds_format(ds, '%Y-%m-%d', '%m%d%Y')}}.csv"],
+        files=["weather_1_{{ CURR_DATE }}.csv"],
         table='prestage_weather_team1_create_test',
         schema=SNOWFLAKE_SCHEMA,
         stage=SNOWFLAKE_STAGE,
