@@ -45,7 +45,7 @@ create table if not exists prestage_weather_team1_create_test (
 )
 '''
 
-CURR_DATE = current_date = timezone.utcnow().strftime('%m%d%Y')
+CURR_DATE = timezone.utcnow().strftime('%m%d%Y')
 
 with DAG(
     "weather_1_create_copy",
