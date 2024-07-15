@@ -52,8 +52,8 @@ with DAG(
     
     copy_into_prestg = CopyFromExternalStageToSnowflakeOperator(
         task_id='prestg_customers_team2',
-        files=['customers_team2_07142024.csv'],
-        #files=['customers_team2_{{ ds[5:7]+ds[8:10]+ds[0:4] }}.csv'],
+        #files=['customers_team2_07142024.csv'],
+        files=['customers_team2_{{ ds[5:7]+ds[8:10]+ds[0:4] }}.csv'],
         #files=["customers_team2_{{ macros.datetime.now().strftime('%m%d%Y') }}.csv"],
         snowflake_conn_id=SNOWFLAKE_CONN_ID,
         table=SNOWFLAKE_TABLE,
