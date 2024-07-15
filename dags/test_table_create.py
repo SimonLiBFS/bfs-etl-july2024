@@ -25,7 +25,7 @@ SELECT * FROM US_STOCK_DAILY.DCCM.Company_Profile WHERE 1=0;
 CREATE OR REPLACE TABLE AIRFLOW0624.BF_DEV.dim_Symbols_TEAM2 AS 
 SELECT * FROM US_STOCK_DAILY.DCCM.Symbols WHERE 1=0;
 
-# -- Copy data from source to target
+# Copy data from source to target
 INSERT INTO AIRFLOW0624.BF_DEV.dim_Company_Profile_TEAM2
 SELECT * FROM US_STOCK_DAILY.DCCM.Company_Profile;
 
