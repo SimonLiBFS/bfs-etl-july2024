@@ -2,6 +2,9 @@ import os
 from datetime import datetime
 from airflow import DAG
 from airflow.providers.snowflake.operators.snowflake import SnowflakeOperator
+from airflow.operators.empty import EmptyOperator
+from airflow.operators.python import BranchPythonOperator
+
 
 SNOWFLAKE_CONN_ID = 'snowflake_conn'
 SNOWFLAKE_DATABASE = 'AIRFLOW0624'
@@ -143,6 +146,13 @@ WHEN NOT MATCHED AND source.rn = 1 THEN
     VALUES (source.SYMBOL, source.DATE, source.OPEN, source.HIGH, source.LOW, source.CLOSE, source.VOLUME, source.ADJCLOSE);
 '''
 
+SQL_FACT_UPDATE_STATEMENT_ver2 = '''
+INSERT INTO AIRFLOW0624.BF_DEV.fact_Stock_History_Team4
+SELECT SYMBOL, DATE, OPEN, HIGH, LOW, CLOSE, VOLUME, ADJCLOSE
+FROM US_STOCK_DAILY.DCCM.Stock_History h
+WHERE h.DATE > '{}'
+'''.format(str(datetime.today().strftime("%Y-%m-%d"))[:10])
+
 with DAG(
     'Project2_snowflake_to_snowflake',
     start_date=datetime(2024, 7, 13),
@@ -151,6 +161,20 @@ with DAG(
     tags=['beaconfire'],
     catchup=False,  
 ) as dag:
+    def branch(**kwargs):
+        #to determine if a initial set up (create table and insert initial data needs to run)
+        date = kwargs['ds']
+        if date == dag.start_date:
+            return 'create_target_tables'
+        else:
+            return 'skip_set_up_and_loading'
+    
+    branch_task = BranchPythonOperator(
+        task_id = 'determine_branch',
+        python_callable=branch,
+        provide_context = True
+    )
+       
     
     create_target_tables_task = SnowflakeOperator(
         task_id='create_target_tables',
@@ -161,34 +185,56 @@ with DAG(
         warehouse=SNOWFLAKE_WAREHOUSE,
     )
 
-    load_initial_data_task = SnowflakeOperator(
-        task_id='load_initial_data',
-        sql=SQL_INSERT_STATEMENT,
+    load_initial_dim_data_task = SnowflakeOperator(
+        task_id='load_dim_initial_data',
+        sql=SQL_DIM_INSERT_STATEMENT,
         database=SNOWFLAKE_DATABASE,
         schema=SNOWFLAKE_SCHEMA,
         role=SNOWFLAKE_ROLE,
         warehouse=SNOWFLAKE_WAREHOUSE,
     )
 
+    load_initial_fact_data_task = SnowflakeOperator(
+        task_id='load_fact_initial_data',
+        sql=SQL_FACT_INSERT_STATEMENT,
+        database=SNOWFLAKE_DATABASE,
+        schema=SNOWFLAKE_SCHEMA,
+        role=SNOWFLAKE_ROLE,
+        warehouse=SNOWFLAKE_WAREHOUSE,
+    )
+
+    skip_initial_set_up = EmptyOperator(
+        task_id='skip_set_up_and_loading'
+    )
+
     incremental_dim_update_task = SnowflakeOperator(
-        task_id='incremental_update',
+        task_id='incremental_dim_update',
         sql=SQL_DIM_UPDATE_STATEMENT,
         database=SNOWFLAKE_DATABASE,
         schema=SNOWFLAKE_SCHEMA,
         role=SNOWFLAKE_ROLE,
         warehouse=SNOWFLAKE_WAREHOUSE,
+        trigger_rule = 'one_success'
     )
 
     incremental_fact_update_task = SnowflakeOperator(
-        task_id='incremental_update',
-        sql=SQL_FACT_UPDATE_STATEMENT,
+        task_id='incremental_fact_update',
+        sql=SQL_FACT_UPDATE_STATEMENT_ver2,
         database=SNOWFLAKE_DATABASE,
         schema=SNOWFLAKE_SCHEMA,
         role=SNOWFLAKE_ROLE,
         warehouse=SNOWFLAKE_WAREHOUSE,
+        
     )
 
-
-
     # task dependencies
-    create_target_tables_task >> load_initial_data_task >> incremental_update_task
+    #create_target_tables_task >> load_initial_dim_data_task >> load_initial_fact_data_task >> incremental_dim_update_task >> incremental_fact_update_task
+    #with branching:
+    branch_task >> create_target_tables_task>>load_initial_dim_data_task>>load_initial_fact_data_task
+    branch_task >>skip_initial_set_up
+    skip_initial_set_up>>incremental_dim_update_task>>incremental_fact_update_task
+
+'''
+if __name__ == '__main__':
+    dag.test()
+'''
