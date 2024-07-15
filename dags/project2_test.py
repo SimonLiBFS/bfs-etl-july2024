@@ -95,7 +95,7 @@ WHEN NOT MATCHED THEN
     VALUES (source.ID, source.SYMBOL, source.PRICE, source.BETA, source.VOLAVG, source.MKTCAP, source.LASTDIV, source.RANGE, source.CHANGES, source.COMPANYNAME, source.EXCHANGE, source.INDUSTRY, source.WEBSITE, source.DESCRIPTION, source.CEO, source.SECTOR, source.DCFDIFF, source.DCF);
 
 MERGE INTO AIRFLOW0624.BF_DEV.dim_Symbols_Team4 AS target
-USING (SELECT * FROM US_STOCK_DAILY.DCCM.Symbols) AS source
+USING (SELECT DISTINCT * FROM US_STOCK_DAILY.DCCM.Symbols) AS source
 ON target.SYMBOL = source.SYMBOL
 WHEN MATCHED THEN UPDATE SET
     target.NAME = source.NAME,
@@ -105,16 +105,18 @@ WHEN NOT MATCHED THEN
     VALUES (source.SYMBOL, source.NAME, source.EXCHANGE);
 
 MERGE INTO AIRFLOW0624.BF_DEV.fact_Stock_History_Team4 AS target
-USING (SELECT DISTINCT * FROM US_STOCK_DAILY.DCCM.Stock_History) AS source
+USING (SELECT SYMBOL, DATE, OPEN, HIGH, LOW, CLOSE, VOLUME, ADJCLOSE, ROW_NUMBER() OVER (PARTITION BY SYMBOL, DATE ORDER BY SYMBOL, DATE) AS rn
+       FROM US_STOCK_DAILY.DCCM.Stock_History
+) AS source
 ON target.SYMBOL = source.SYMBOL AND target.DATE = source.DATE
-WHEN MATCHED THEN UPDATE SET
+WHEN MATCHED AND source.rn = 1 THEN UPDATE SET
     target.OPEN = source.OPEN,
     target.HIGH = source.HIGH,
     target.LOW = source.LOW,
     target.CLOSE = source.CLOSE,
     target.VOLUME = source.VOLUME,
     target.ADJCLOSE = source.ADJCLOSE
-WHEN NOT MATCHED THEN
+WHEN NOT MATCHED AND source.rn = 1 THEN
     INSERT (SYMBOL, DATE, OPEN, HIGH, LOW, CLOSE, VOLUME, ADJCLOSE)
     VALUES (source.SYMBOL, source.DATE, source.OPEN, source.HIGH, source.LOW, source.CLOSE, source.VOLUME, source.ADJCLOSE);
 '''
