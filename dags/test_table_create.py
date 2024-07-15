@@ -46,12 +46,11 @@ USING (
     JOIN AIRFLOW0624.BF_DEV.dim_Company_Profile_TEAM2 cp
     ON sh.SYMBOL = cp.SYMBOL
 ) as s
-ON t.ID = s.ID
-WHEN MATCHED THEN
-    UPDATE SET t.SYMBOL = s.SYMBOL, t.DATE = s.DATE,
-               t.OPEN = s.OPEN, t.HIGH = s.HIGH,
-               t.LOW = s.LOW, t.CLOSE = s.CLOSE,
-               t.VOLUME = s.VOLUME, t.ADJCLOSE = s.ADJCLOSE
+ON t.ID = s.ID and t.SYMBOL = s.SYMBOL and t.DATE = s.DATE
+WHEN MATCHED THEN UPDATE SET 
+            t.OPEN = s.OPEN, t.HIGH = s.HIGH,
+            t.LOW = s.LOW, t.CLOSE = s.CLOSE,
+            t.VOLUME = s.VOLUME, t.ADJCLOSE = s.ADJCLOSE
 WHEN NOT MATCHED THEN
     INSERT (ID, SYMBOL, DATE, OPEN, HIGH, LOW, CLOSE, VOLUME, ADJCLOSE)
     VALUES (s.ID, s.SYMBOL, s.DATE, s.OPEN, s.HIGH, s.LOW, s.CLOSE, s.VOLUME, s.ADJCLOSE);
